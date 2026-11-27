@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#12352d">
-<meta name="description" content="ANRSH PRESSE — المجلة الإلكترونية للجمعية الوطنية لمتقاعدي سوناطراك.">
+<meta name="description" content="ANRSH PRESSE — المجلة الإلكترونية للجمعية الوطنية لمتقاعدي سوناطراك.">\n<link rel="manifest" href="./manifest.webmanifest">
 <title>ANRSH PRESSE | المجلة الإلكترونية</title>
 <style>
 :root{--green:#12352d;--green2:#1e5948;--gold:#c6a45b;--ink:#202923;--muted:#68756e;--paper:#f5f6f1;--white:#fff;--line:#e2e8e1}
@@ -15,7 +15,7 @@
 <div class="top"><div><strong>ANRSH</strong> · Association Nationale des Retraités de Sonatrach</div><div class="lang" aria-label="Language"><button class="active" data-lang="ar">العربية</button><button data-lang="fr">FR</button><button data-lang="en">EN</button></div></div>
 <header><div class="brand"><small>ANRSH · PRESSE</small><h1 data-i18n="title">المجلة الإلكترونية</h1><p data-i18n="subtitle">صوت المتقاعدين… معلومة موثوقة وخدمة أقرب إليكم</p></div></header>
 <div class="breaking" role="status" aria-live="polite"><span class="breaking-label" data-i18n="breakingLabel">عاجل</span><span class="breaking-text" data-i18n="breakingEmpty">لا توجد أخبار عاجلة معتمدة حالياً</span><span class="breaking-date" data-i18n="breakingStatus">تحديث عند الاعتماد</span></div>
-<div class="navwrap"><nav class="nav"><a href="#home" class="selected" data-i18n="home">الرئيسية</a><a href="#news" data-i18n="news">الأخبار</a><a href="#services" data-i18n="services">الخدمات الاجتماعية</a><a href="#about" data-i18n="about">عن المجلة</a></nav></div>
+<div class="navwrap"><nav class="nav"><a href="#home" class="selected" data-i18n="home">الرئيسية</a><a href="#news" data-i18n="news">الأخبار</a><a href="#services" data-i18n="services">الخدمات الاجتماعية</a><a href="#about" data-i18n="about">عن المجلة</a><a href="./editor.html">هيئة التحرير</a></nav></div>
 <main class="container" id="home">
 <section class="intro"><h2 data-i18n="welcome">مرحباً بكم في ANRSH PRESSE</h2><p data-i18n="intro">فضاء إعلامي مخصص لمتقاعدي سوناطراك، يهدف إلى تقديم أخبار ومعلومات دقيقة حول الخدمات الاجتماعية والأنشطة والاتفاقيات. لا يُنشر أي محتوى قبل مراجعته واعتماده تحريرياً.</p></section>
 <section id="news"><div class="sectionhead"><h2 data-i18n="latest">آخر المستجدات</h2><span data-i18n="verified">النشر بعد التحقق والاعتماد فقط</span></div><div class="filters"><button class="active" data-filter="all" data-i18n="all">الكل</button><button data-filter="social" data-i18n="social">اجتماعي</button><button data-filter="umrah" data-i18n="umrah">العمرة</button><button data-filter="holiday" data-i18n="holiday">مراكز الراحة</button><button data-filter="agreements" data-i18n="agreements">الاتفاقيات</button></div><div class="grid" id="articles"><div class="empty" data-i18n="empty">لا توجد مقالات معتمدة للنشر حالياً. نحرص على التحقق من المصدر والتاريخ قبل نشر أي خبر.</div></div></section>
@@ -33,4 +33,28 @@ document.querySelectorAll("[data-lang]").forEach(b=>b.addEventListener("click",(
 document.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".filters button").forEach(x=>x.classList.remove("active"));b.classList.add("active")}));
 document.querySelectorAll(".nav a").forEach(a=>a.addEventListener("click",()=>{document.querySelectorAll(".nav a").forEach(x=>x.classList.remove("selected"));a.classList.add("selected")}));
 </script>
-</body></html>
+
+<script>
+(async function loadApprovedEditorialContent(){
+ const API='https://anrsh-presse-api.irched2521.workers.dev';
+ const box=document.getElementById('articles');
+ try{
+  const [ar,br]=await Promise.all([
+   fetch(API+'/api/articles',{credentials:'omit'}).then(r=>r.ok?r.json():Promise.reject(new Error('articles '+r.status))),
+   fetch(API+'/api/breaking-news',{credentials:'omit'}).then(r=>r.ok?r.json():Promise.reject(new Error('breaking '+r.status)))
+  ]);
+  const articles=Array.isArray(ar)?ar:(ar.articles||ar.items||[]);
+  if(articles.length){box.innerHTML='';articles.forEach(a=>{
+   const card=document.createElement('article');card.className='card';
+   const tag=document.createElement('span');tag.className='tag';tag.textContent=a.category||'ANRSH PRESSE';
+   const h=document.createElement('h3');h.textContent=a.title||'';
+   const p=document.createElement('p');p.textContent=a.excerpt||a.summary||a.content||a.body||'';
+   card.append(tag,h,p);box.append(card);
+  })}
+  const breaking=Array.isArray(br)?br:(br.items||br.news||[]);
+  const approved=breaking.find(x=>x.status==='published'||x.status==='approved'||x.approved===true)||breaking[0];
+  if(approved){const t=document.querySelector('.breaking-text');if(t)t.textContent=approved.title||approved.text||approved.content||t.textContent}
+ }catch(e){console.warn('Editorial API is not reachable; keeping magazine shell.',e)}
+})();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+</script>\n</body></html>
