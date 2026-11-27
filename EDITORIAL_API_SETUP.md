@@ -26,3 +26,12 @@ Contributors can submit drafts only. Editors can approve/reject. Only admins can
 - The login API key is a bootstrap credential; the session cookie is HttpOnly/Secure/SameSite=Strict. Keep the frontend and API on the same site if possible.
 - Configure Cloudflare WAF/rate limiting and observability. The D1 rate-limit table is a basic per-IP application guard, not a substitute for edge protection.
 - No Meta/Facebook API integration or automatic Facebook publishing is included.
+
+
+## Frontend connection and photographs
+- The homepage can load only approved items from `GET /api/public/articles` and approved breaking items from `GET /api/public/breaking`.
+- Set the `anrsh-api-base` meta tag in `index.html` to the magazine Worker origin when the API is hosted separately, for example `https://anrsh-magazine-api.example.workers.dev`. Leave it empty only when the API is served from the same origin as the website.
+- Configure the Worker `ALLOWED_ORIGIN` to the exact public website origin. Do not use a wildcard with credentialed requests.
+- Article photographs are displayed from the HTTPS `image_url` field. Use only images the association is authorized to publish, add a caption/credit in the article text, and do not use private member documents or ID-card photos.
+- The static first-issue articles remain as a fallback while the API is unavailable. They must be fact-checked and editorially approved before a production release.
+- The cover image path referenced by the homepage is `assets/cover-nov-2026.jpg`; the binary image still needs to be added to the repository before the cover can display.
