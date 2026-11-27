@@ -134,7 +134,10 @@ async function route(req, env) {
     const next=action==="reject"?"rejected":action==="publish"?"published":"approved";
     const stamp=new Date().toISOString();
     if(action==="approve") await env.DB.prepare(`UPDATE ${table} SET status='approved',approved_at=? WHERE id=? AND status='draft'`).bind(stamp,id).run();
-    if(action==="publish") await env.DB.prepare(`UPDATE ${table} SET status='published',published_at=? WHERE id=? AND status='approved'`).bind(stamp,id).run();
+    if(action==="publish") {
+      if(kind==="articles") await env.DB.prepare("UPDATE articles SET status=? ,published_at=? WHERE id=? AND status=?").bind("published",stamp,id,"approved").run();
+      else await env.DB.prepare("UPDATE breaking_news SET status=? WHERE id=? AND status=?").bind("published",id,"approved").run();
+    }
     if(action==="reject") await env.DB.prepare(`UPDATE ${table} SET status='rejected' WHERE id=? AND status IN ('draft','approved')`).bind(id).run();
     await audit(env,actor,kind==="articles"?"article":"breaking_news",id,action);
     return json({ok:true,id,status:next});
