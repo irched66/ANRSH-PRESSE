@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#12352d"><title>هيئة التحرير | ANRSH PRESSE</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<style>
+:root{--g:#12352d;--g2:#205b49;--gold:#c6a45b;--bg:#f4f6f2;--line:#dfe6df}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#202923;font-family:Tahoma,Arial,sans-serif;line-height:1.65}
+header{background:linear-gradient(120deg,var(--g),var(--g2));color:#fff;padding:22px 5%;border-bottom:4px solid var(--gold)}
+header h1{margin:0;font-size:25px}header p{margin:4px 0 0;color:#e5eee8}
+main{max-width:850px;margin:24px auto;padding:0 15px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 5px 18px #173d2910}
+h2{color:var(--g);font-size:20px;margin:0 0 14px}label{display:block;font-weight:bold;margin:12px 0 5px}
+input,textarea,select{width:100%;font:inherit;padding:11px;border:1px solid #cbd6cc;border-radius:9px;background:#fff}
+textarea{min-height:180px;resize:vertical}
+button,.btn{border:0;border-radius:9px;background:var(--g);color:white;padding:11px 18px;font:inherit;font-weight:bold;cursor:pointer}
+button.secondary{background:#eaf0eb;color:var(--g)}button:disabled{opacity:.5}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.muted{color:#68756e;font-size:13px}.status{padding:10px;border-radius:8px;background:#edf3ed;margin-top:12px;white-space:pre-wrap}
+.hidden{display:none!important}.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:8px;margin-top:10px}
+.gallery img{width:100%;height:95px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.article{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:9px}.article small{color:#68756e}
+a{color:inherit}footer{text-align:center;color:#68756e;padding:22px;font-size:13px}
+</style>
+</head><body>
+<header><h1>بوابة هيئة التحرير — ANRSH PRESSE</h1><p>مساحة خاصة لإعداد المقالات وإرسالها للمراجعة والاعتماد</p></header>
+<main>
+<section id="login" class="panel">
+<h2>تسجيل الدخول</h2>
+<p><strong>البريد الإلكتروني</strong><br><span dir="ltr">anrsh1994@gmail.com</span></p>
+<label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور التي حددها صاحب البوابة">
+<div class="row" style="margin-top:14px"><button id="loginBtn">دخول هيئة التحرير</button><a href="./" class="btn secondary" style="text-decoration:none">العودة إلى المجلة</a></div>
+<div id="loginMsg" class="status hidden" role="status"></div>
+<p class="muted">لا تُحفظ كلمة المرور في هذه الصفحة ولا تُعرض للمتعاونين.</p>
+</section>
+<section id="workspace" class="hidden">
+<div class="panel">
+<div class="row" style="justify-content:space-between"><h2>إعداد مقال جديد</h2><button id="logoutBtn" class="secondary">تسجيل الخروج</button></div>
+<label for="title">عنوان المقال</label><input id="title" maxlength="180" placeholder="عنوان واضح للمقال">
+<label for="language">لغة المقال</label><select id="language"><option value="ar">العربية</option><option value="fr">Français</option><option value="en">English</option></select>
+<label for="category">القسم</label><select id="category"><option value="social">اجتماعي</option><option value="umrah">العمرة</option><option value="holiday">مراكز الراحة</option><option value="agreements">الاتفاقيات</option><option value="news">أخبار عامة</option></select>
+<label for="content">نص المقال</label><textarea id="content" placeholder="اكتب المقال كاملاً هنا..."></textarea>
+<label for="photos">صور المقال</label><input id="photos" type="file" accept="image/*" multiple>
+<div class="muted">يمكن تحديد عدة صور دفعة واحدة من معرض الهاتف. اختر الصور التي تريد إضافتها للمقال.</div>
+<div id="gallery" class="gallery"></div>
+<div class="row" style="margin-top:16px"><button id="saveBtn">حفظ المقال كمسودة</button></div>
+<div id="saveMsg" class="status hidden" role="status"></div>
+</div>
+<div class="panel"><h2>مسودات هيئة التحرير</h2><div id="drafts" class="muted">جارٍ تحميل المسودات عند تسجيل الدخول...</div></div>
+</section>
+</main><footer>ANRSH PRESSE · المجلة الإلكترونية للجمعية الوطنية لمتقاعدي سوناطراك</footer>
+<script>
+const API='https://anrsh-presse-api.irched2521.workers.dev';
+const $=id=>document.getElementById(id);
+let selectedFiles=[];
+function message(id,text){$(id).textContent=text;$(id).classList.remove('hidden')}
+async function api(path,options={}){const r=await fetch(API+path,{...options,credentials:'include',headers:{'Content-Type':'application/json',...(options.headers||{})}});let data={};try{data=await r.json()}catch{}if(!r.ok)throw new Error(data.error||data.message||('HTTP '+r.status));return data}
+async function enter(){const password=$('password').value;if(!password){message('loginMsg','أدخل كلمة المرور أولاً.');return}
+$('loginBtn').disabled=true;try{await api('/api/login',{method:'POST',body:JSON.stringify({password})});$('password').value='';$('login').classList.add('hidden');$('workspace').classList.remove('hidden');await loadDrafts()}catch(e){message('loginMsg','تعذر تسجيل الدخول: '+e.message+'\nتحقق من إعدادات الجلسة والكوكيز في المتصفح.')}finally{$('loginBtn').disabled=false}}
+async function loadDrafts(){try{const d=await api('/api/admin/articles');const items=Array.isArray(d)?d:(d.articles||d.items||[]);$('drafts').innerHTML='';if(!items.length){$('drafts').textContent='لا توجد مسودات حالياً.';return}items.forEach(a=>{const el=document.createElement('div');el.className='article';const h=document.createElement('strong');h.textContent=a.title||'مقال دون عنوان';const sm=document.createElement('small');sm.textContent=' · '+(a.status||'مسودة');el.append(h,sm);$('drafts').append(el)})}catch(e){$('drafts').textContent='تعذر تحميل المسودات: '+e.message}}
+$('loginBtn').addEventListener('click',enter);$('password').addEventListener('keydown',e=>{if(e.key==='Enter')enter()});
+$('photos').addEventListener('change',e=>{selectedFiles=Array.from(e.target.files||[]);$('gallery').innerHTML='';selectedFiles.forEach(file=>{const img=document.createElement('img');img.alt=file.name;img.src=URL.createObjectURL(file);$('gallery').append(img)})});
+$('saveBtn').addEventListener('click',async()=>{const title=$('title').value.trim(),content=$('content').value.trim();if(!title||!content){message('saveMsg','يرجى إدخال العنوان ونص المقال.');return}message('saveMsg','يتم تجهيز المقال...');$('saveBtn').disabled=true;try{
+const images=await Promise.all(selectedFiles.map(file=>new Promise((resolve,reject)=>{const rd=new FileReader();rd.onload=()=>resolve({name:file.name,type:file.type,data:String(rd.result).split(',')[1]||''});rd.onerror=reject;rd.readAsDataURL(file)})));
+await api('/api/admin/articles',{method:'POST',body:JSON.stringify({title,content,language:$('language').value,category:$('category').value,images})});
+message('saveMsg','تم إرسال المقال كمسودة. سيظهر بعد نجاح حفظه في قاعدة البيانات.');$('title').value='';$('content').value='';$('photos').value='';selectedFiles=[];$('gallery').innerHTML='';await loadDrafts();
+}catch(e){message('saveMsg','لم يتم حفظ المقال: '+e.message+'\nقد يحتاج شكل بيانات المقال أو رفع الصور إلى مطابقة إضافية مع Worker قبل اعتماد النشر.')}finally{$('saveBtn').disabled=false}});
+$('logoutBtn').addEventListener('click',async()=>{try{await api('/api/logout',{method:'POST',body:'{}'})}catch{}$('workspace').classList.add('hidden');$('login').classList.remove('hidden');$('password').value='';});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script></body></html>
