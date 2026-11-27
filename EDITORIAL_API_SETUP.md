@@ -34,4 +34,4 @@ Contributors can submit drafts only. Editors can approve/reject. Only admins can
 - Configure the Worker `ALLOWED_ORIGIN` to the exact public website origin. Do not use a wildcard with credentialed requests.
 - Article photographs are displayed from the HTTPS `image_url` field. Use only images the association is authorized to publish, add a caption/credit in the article text, and do not use private member documents or ID-card photos.
 - The static first-issue articles remain as a fallback while the API is unavailable. They must be fact-checked and editorially approved before a production release.
-- The cover image path referenced by the homepage is `assets/cover-nov-2026.jpg`; the binary image still needs to be added to the repository before the cover can display.
+- The cover image path referenced by the homepage is `assets/cover-nov-2026.webp`; the binary image still needs to be added to the repository before the cover can display.
