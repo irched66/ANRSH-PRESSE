@@ -20,6 +20,9 @@
 .cover-copy a{display:inline-block;text-decoration:none;background:#fff;color:#12352d;padding:9px 16px;border-radius:8px;font-weight:bold}
 .weekly-note{max-width:1100px;margin:14px auto 0;padding:0 5%;color:#68756e;font-size:13px}
 @media(max-width:720px){.cover-wrap{padding:0 3%}.cover-frame{grid-template-columns:1fr}.cover-copy{padding:18px}.cover-image{max-height:none}.weekly-note{padding:0 4%}}
+
+.card-media{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:9px;margin:0 0 12px;background:#edf1ed}
+.card .source-link{display:inline-block;margin-top:10px;color:var(--green2);font-weight:bold}
 </style>
 </head>
 <body>
@@ -99,5 +102,56 @@ function setLang(lang){const d=dict[lang]||dict.ar;document.documentElement.lang
 document.querySelectorAll("[data-lang]").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
 document.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".filters button").forEach(x=>x.classList.remove("active"));b.classList.add("active");const f=b.dataset.filter;document.querySelectorAll("#articles .card").forEach(c=>c.classList.toggle("hidden",f!=="all"&&c.dataset.category!==f));}));
 document.querySelectorAll(".nav a").forEach(a=>a.addEventListener("click",()=>{document.querySelectorAll(".nav a").forEach(x=>x.classList.remove("selected"));a.classList.add("selected")}));
+
+// Optional same-origin editorial API. If unavailable, the reviewed static issue remains visible.
+const MAGAZINE_API_BASE = document.querySelector('meta[name="anrsh-api-base"]')?.content?.trim() || "";
+const categoryMap = {social:"social",umrah:"umrah",holiday:"holiday",agreements:"agreements"};
+function safeHttpsUrl(value){
+  try{const u=new URL(value,location.href);return u.protocol==="https:"?u.href:""}catch{return ""}
+}
+function applyCurrentFilter(){
+  const active=document.querySelector(".filters button.active");
+  const filter=active?.dataset.filter||"all";
+  document.querySelectorAll("#articles .card").forEach(card=>card.classList.toggle("hidden",filter!=="all"&&card.dataset.category!==filter));
+}
+function renderPublishedArticles(items){
+  const host=document.getElementById("articles");
+  if(!Array.isArray(items)||!items.length)return;
+  host.replaceChildren();
+  for(const item of items.slice(0,100)){
+    const card=document.createElement("article");card.className="card";
+    card.dataset.category=categoryMap[item.category]||"social";
+    const imageUrl=safeHttpsUrl(item.image_url);
+    if(imageUrl){const img=document.createElement("img");img.className="card-media";img.loading="lazy";img.src=imageUrl;img.alt=String(item.title||"صورة الخبر").slice(0,180);img.referrerPolicy="no-referrer";card.append(img)}
+    const tag=document.createElement("span");tag.className="tag";tag.textContent=String(item.source_name||item.category||"ANRSH").slice(0,100);card.append(tag);
+    const title=document.createElement("h3");title.textContent=String(item.title||"").slice(0,240);card.append(title);
+    const content=document.createElement("p");content.textContent=String(item.content||"").slice(0,4000);card.append(content);
+    const note=document.createElement("p");note.className="note";note.textContent=[item.source_date,item.language?.toUpperCase()].filter(Boolean).join(" · ");card.append(note);
+    const source=safeHttpsUrl(item.source_url);
+    if(source){const link=document.createElement("a");link.className="source-link";link.href=source;link.target="_blank";link.rel="noopener noreferrer";link.textContent="المصدر الأصلي";card.append(link)}
+    host.append(card);
+  }
+  applyCurrentFilter();
+}
+document.querySelectorAll(".filters button").forEach(button=>button.addEventListener("click",applyCurrentFilter));
+async function loadApprovedEditorialContent(){
+  const base=MAGAZINE_API_BASE.replace(/\/$/,"");
+  try{
+    const response=await fetch(base+"/api/public/articles",{headers:{Accept:"application/json"},credentials:"omit"});
+    if(response.ok){const payload=await response.json();renderPublishedArticles(payload.items);}
+  }catch(error){/* Keep the static issue available when the API is not configured. */}
+  try{
+    const response=await fetch(base+"/api/public/breaking",{headers:{Accept:"application/json"},credentials:"omit"});
+    if(response.ok){
+      const payload=await response.json(), item=Array.isArray(payload.items)?payload.items[0]:null;
+      if(item){
+        const title=document.querySelector(".breaking-text"),date=document.querySelector(".breaking-date");
+        if(title)title.textContent=String(item.title||item.message||"").slice(0,300);
+        if(date)date.textContent=item.source_name?String(item.source_name).slice(0,80):"ANRSH PRESSE";
+      }
+    }
+  }catch(error){/* Keep the default banner when there is no approved alert. */}
+}
+loadApprovedEditorialContent();
 </script>
 </body></html>
