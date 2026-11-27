@@ -9,11 +9,35 @@
 <style>
 :root{--green:#12352d;--green2:#1e5948;--gold:#c6a45b;--ink:#202923;--muted:#68756e;--paper:#f5f6f1;--white:#fff;--line:#e2e8e1}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.7}a{color:inherit}.top{background:var(--green);color:white;padding:10px 5%;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;font-size:13px}.top strong{color:#f0d99d}.lang button{background:transparent;border:1px solid #ffffff66;color:white;padding:5px 10px;border-radius:20px;cursor:pointer}.lang button.active{background:var(--gold);color:#17251e;border-color:var(--gold)}header{background:linear-gradient(120deg,#12352d,#205b49);color:#fff;padding:34px 5% 28px;border-bottom:5px solid var(--gold)}.brand{max-width:1100px;margin:auto}.brand small{color:#e4d1a0;letter-spacing:2px;font-weight:bold}.brand h1{font-size:clamp(30px,5vw,48px);margin:5px 0}.brand p{margin:0;color:#e3ece6}.navwrap{background:white;box-shadow:0 3px 12px #14291d0d}.nav{max-width:1100px;margin:auto;display:flex;gap:8px;overflow:auto;padding:10px 5%;white-space:nowrap}.nav a{text-decoration:none;padding:8px 13px;border-radius:8px;font-size:14px;color:var(--green)}.nav a:hover,.nav a.selected{background:#eaf0e9}.container{max-width:1100px;margin:30px auto;padding:0 5%}.intro{background:white;border:1px solid var(--line);border-right:5px solid var(--gold);padding:22px;border-radius:12px}.intro h2{margin:0 0 8px;color:var(--green)}.intro p{margin:0;color:var(--muted)}.sectionhead{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:30px 0 14px}.sectionhead h2{margin:0;color:var(--green)}.sectionhead span{font-size:13px;color:var(--muted)}.filters{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.filters button{border:1px solid var(--line);background:#fff;border-radius:22px;padding:7px 13px;cursor:pointer;color:var(--green)}.filters button.active{background:var(--green);color:white;border-color:var(--green)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px}.card{background:white;border:1px solid var(--line);border-radius:12px;padding:18px;min-height:190px}.tag{display:inline-block;background:#edf2eb;color:var(--green2);padding:3px 9px;border-radius:20px;font-size:12px}.card h3{font-size:18px;margin:12px 0 7px;color:var(--green)}.card p{margin:0;color:var(--muted);font-size:14px}.empty{grid-column:1/-1;text-align:center;background:#fff;border:1px dashed #cbd6cb;border-radius:12px;padding:30px;color:var(--muted)}.services{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.service{background:white;border:1px solid var(--line);border-radius:10px;padding:16px}.service b{color:var(--green)}.note{font-size:13px;color:var(--muted);margin-top:12px}.breaking{background:#fff8e8;border-bottom:1px solid #ead8ae;border-top:1px solid #ead8ae;color:#5c4213;padding:10px 5%;display:flex;align-items:center;gap:12px;overflow:hidden}.breaking-label{flex:none;background:#a52d25;color:#fff;padding:4px 12px;border-radius:4px;font-weight:bold;font-size:13px}.breaking-text{font-size:14px;font-weight:600}.breaking-date{font-size:12px;color:#806d4a;margin-inline-start:auto;white-space:nowrap}footer{margin-top:45px;background:#102d26;color:#e5eee8;padding:28px 5%;text-align:center}footer strong{color:#e4cd91}footer p{margin:5px;font-size:13px}.hidden{display:none!important}@media(max-width:560px){.top{justify-content:center}header{padding-top:25px}.sectionhead{display:block}.sectionhead span{display:block;margin-top:3px}}
+
+.cover-wrap{max-width:1100px;margin:22px auto 0;padding:0 5%}
+.cover-frame{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.72fr);gap:18px;align-items:center;background:#082d67;border-radius:18px;overflow:hidden;box-shadow:0 12px 35px #102d2630}
+.cover-image{display:block;width:100%;height:auto;max-height:760px;object-fit:contain;background:#0c326f}
+.cover-copy{color:#fff;padding:26px 24px}
+.cover-copy .edition{display:inline-block;background:#c6a45b;color:#17251e;border-radius:30px;padding:5px 13px;font-weight:bold;font-size:13px}
+.cover-copy h2{font-size:clamp(24px,3.2vw,38px);line-height:1.35;margin:14px 0}
+.cover-copy p{color:#e5edf8;margin:0 0 16px}
+.cover-copy a{display:inline-block;text-decoration:none;background:#fff;color:#12352d;padding:9px 16px;border-radius:8px;font-weight:bold}
+.weekly-note{max-width:1100px;margin:14px auto 0;padding:0 5%;color:#68756e;font-size:13px}
+@media(max-width:720px){.cover-wrap{padding:0 3%}.cover-frame{grid-template-columns:1fr}.cover-copy{padding:18px}.cover-image{max-height:none}.weekly-note{padding:0 4%}}
 </style>
 </head>
 <body>
 <div class="top"><div><strong>ANRSH</strong> · Association Nationale des Retraités de Sonatrach</div><div class="lang" aria-label="Language"><button class="active" data-lang="ar">العربية</button><button data-lang="fr">FR</button><button data-lang="en">EN</button></div></div>
 <header><div class="brand"><small>ANRSH · PRESSE</small><h1 data-i18n="title">المجلة الإلكترونية</h1><p data-i18n="subtitle">صوت المتقاعدين… معلومة موثوقة وخدمة أقرب إليكم</p></div></header>
+
+<section class="cover-wrap" aria-label="غلاف العدد الأول">
+ <div class="cover-frame">
+  <img class="cover-image" src="assets/cover-nov-2026.jpg" alt="غلاف العدد الأول من مجلة ANRSH MAGAZINE، نوفمبر 2026">
+  <div class="cover-copy">
+   <span class="edition">العدد الأول · نوفمبر 2026</span>
+   <h2>ANRSH MAGAZINE<br>المجلة الإلكترونية الأسبوعية</h2>
+   <p>صوت المتقاعدين… معلومة موثوقة وخدمة أقرب إليكم.</p>
+   <a href="#news">اكتشفوا آخر المستجدات</a>
+  </div>
+ </div>
+</section>
+<p class="weekly-note">هذا هو الغلاف الافتتاحي. يتجدد الغلاف أسبوعياً مع الحفاظ على الهوية التحريرية للمجلة.</p>
 <div class="breaking" role="status" aria-live="polite"><span class="breaking-label" data-i18n="breakingLabel">عاجل</span><span class="breaking-text" data-i18n="breakingEmpty">لا توجد أخبار عاجلة معتمدة حالياً</span><span class="breaking-date" data-i18n="breakingStatus">تحديث عند الاعتماد</span></div>
 <div class="navwrap"><nav class="nav"><a href="#home" class="selected" data-i18n="home">الرئيسية</a><a href="#news" data-i18n="news">الأخبار</a><a href="#services" data-i18n="services">الخدمات الاجتماعية</a><a href="#about" data-i18n="about">عن المجلة</a></nav></div>
 <main class="container" id="home">
