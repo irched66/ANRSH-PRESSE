@@ -73,7 +73,7 @@ async function login(req, env) {
   const expires=new Date(Date.now()+SESSION_SECONDS*1000).toISOString();
   await env.DB.prepare("INSERT INTO editorial_sessions(id,account_id,token_hash,expires_at) VALUES(?,?,?,?)")
     .bind(id,row.id,await hash(token),expires).run();
-  return json({ok:true,display_name:row.display_name,role:row.role},{}, { "set-cookie":cookie(token) });
+  return json({ok:true,display_name:row.display_name,role:row.role},200,{ "set-cookie":cookie(token) });
 }
 async function route(req, env) {
   const url=new URL(req.url), path=url.pathname, method=req.method;
@@ -133,12 +133,14 @@ async function route(req, env) {
     if(!row) return json({error:"NOT_FOUND"},404);
     const next=action==="reject"?"rejected":action==="publish"?"published":"approved";
     const stamp=new Date().toISOString();
-    if(action==="approve") await env.DB.prepare(`UPDATE ${table} SET status='approved',approved_at=? WHERE id=? AND status='draft'`).bind(stamp,id).run();
+    let changed;
+    if(action==="approve") changed=await env.DB.prepare(`UPDATE ${table} SET status='approved',approved_at=? WHERE id=? AND status='draft'`).bind(stamp,id).run();
     if(action==="publish") {
-      if(kind==="articles") await env.DB.prepare("UPDATE articles SET status=? ,published_at=? WHERE id=? AND status=?").bind("published",stamp,id,"approved").run();
-      else await env.DB.prepare("UPDATE breaking_news SET status=? WHERE id=? AND status=?").bind("published",id,"approved").run();
+      if(kind==="articles") changed=await env.DB.prepare("UPDATE articles SET status='published',published_at=? WHERE id=? AND status='approved'").bind(stamp,id).run();
+      else changed=await env.DB.prepare("UPDATE breaking_news SET status='published' WHERE id=? AND status='approved'").bind(id).run();
     }
-    if(action==="reject") await env.DB.prepare(`UPDATE ${table} SET status='rejected' WHERE id=? AND status IN ('draft','approved')`).bind(id).run();
+    if(action==="reject") changed=await env.DB.prepare(`UPDATE ${table} SET status='rejected' WHERE id=? AND status IN ('draft','approved')`).bind(id).run();
+    if(!changed?.meta?.changes) return json({error:"INVALID_STATUS_TRANSITION",current_status:row.status},409);
     await audit(env,actor,kind==="articles"?"article":"breaking_news",id,action);
     return json({ok:true,id,status:next});
   }
@@ -153,17 +155,23 @@ async function route(req, env) {
   return json({error:"NOT_FOUND"},404);
 }
 async function safeEqual(a,b) {
-  const [x,y]=await Promise.all([hash(a),hash(b)]);
-  return crypto.subtle.timingSafeEqual(enc.encode(x),enc.encode(y));
+  const x=enc.encode(String(a)), y=enc.encode(String(b));
+  const length=Math.max(x.length,y.length);
+  let diff=x.length ^ y.length;
+  for(let i=0;i<length;i++) diff |= (x[i]||0) ^ (y[i]||0);
+  return diff===0;
 }
 export default {
   async fetch(req,env) {
     try {
       const url=new URL(req.url);
-      if(req.method==="OPTIONS") return new Response(null,{status:204,headers:{
-        "Access-Control-Allow-Origin":env.ALLOWED_ORIGIN||"null","Access-Control-Allow-Methods":"GET,POST,OPTIONS",
-        "Access-Control-Allow-Headers":"Content-Type,X-Bootstrap-Key","Access-Control-Allow-Credentials":"true","Vary":"Origin"
-      }});
+      if(req.method==="OPTIONS") {
+        if(!originOk(req,env)) return json({error:"BAD_ORIGIN"},403);
+        return new Response(null,{status:204,headers:{
+          "Access-Control-Allow-Origin":env.ALLOWED_ORIGIN,"Access-Control-Allow-Methods":"GET,POST,OPTIONS",
+          "Access-Control-Allow-Headers":"Content-Type,X-Bootstrap-Key","Access-Control-Allow-Credentials":"true","Vary":"Origin"
+        }});
+      }
       if(url.pathname.startsWith("/api/") && req.method!=="GET" && !originOk(req,env)) return json({error:"BAD_ORIGIN"},403);
       const response=await route(req,env);
       const headers=new Headers(response.headers);
