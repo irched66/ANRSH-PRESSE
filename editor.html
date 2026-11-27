@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#092b50">
+<title>هيئة تحرير ANRSH MAGAZINE</title>
+<style>
+:root{--navy:#092b50;--gold:#d9ad43;--ink:#182536;--muted:#64748b;--line:#dce4ee;--paper:#f3f6fa}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.7}
+header{background:var(--navy);color:#fff;padding:22px 16px;text-align:center;border-bottom:4px solid var(--gold)}
+header h1{margin:0;font-size:25px}header p{margin:5px 0 0;color:#e8edf4}
+main{max-width:900px;margin:22px auto;padding:0 14px}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:16px 0;box-shadow:0 5px 18px #10294a0b}
+.notice{background:#fff8e8;border-right:4px solid var(--gold);padding:12px 14px;border-radius:8px;font-size:14px}
+label{display:block;font-weight:bold;margin:13px 0 5px}input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;font:inherit;background:#fff}
+textarea{min-height:180px;resize:vertical}button,.linkbtn{border:0;border-radius:9px;padding:11px 16px;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}
+.primary{background:var(--navy);color:#fff}.secondary{background:#e8eef5;color:var(--navy)}.danger{background:#fff0f0;color:#9b1c1c}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.draft{border:1px solid var(--line);padding:14px;border-radius:12px;margin:12px 0}.draft h3{margin:0 0 5px;color:var(--navy)}.draft img{max-width:100%;max-height:260px;object-fit:contain;border-radius:9px;display:block;margin:10px 0}.muted{color:var(--muted);font-size:13px}.empty{color:var(--muted);text-align:center;padding:22px}
+#preview{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(min-width:700px){.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
+</style></head>
+<body>
+<header><h1>ANRSH MAGAZINE</h1><p>بوابة هيئة التحرير · إعداد المواد الصحفية</p></header>
+<main>
+<div class="panel notice"><strong>تنبيه مهم:</strong> هذه مساحة إعداد مسودات على هذا الجهاز والمتصفح فقط. لا تُنشر المواد تلقائياً على الموقع ولا تُرفع الصور إلى الخادم. بعد تجهيز المقال، أرسله للمراجعة والاعتماد قبل النشر. لا تضع هنا وثائق شخصية أو معلومات سرية.</div>
+<section class="panel">
+<h2>إضافة مقال جديد</h2>
+<form id="articleForm">
+<label for="title">عنوان المقال</label><input id="title" required maxlength="180" placeholder="اكتب عنوان المقال">
+<div class="two">
+<div><label for="section">القسم</label><select id="section"><option>من قلب الحدث</option><option>أخبار ونشاطات الجمعية</option><option>ملف المتقاعد</option><option>المكاتب الجهوية</option><option>إعلانات وبيانات</option><option>رأي ومقالات</option></select></div>
+<div><label for="lang">لغة المقال</label><select id="lang"><option value="ar">العربية</option><option value="fr">Français</option><option value="en">English</option></select></div>
+</div>
+<label for="body">نص المقال (الصق النص هنا)</label><textarea id="body" required placeholder="الصق المقال كاملاً هنا..."></textarea>
+<label for="photo">صورة المقال (اختياري)</label><input id="photo" type="file" accept="image/*">
+<label for="source">رابط المصدر الأصلي (اختياري)</label><input id="source" type="url" placeholder="https://www.facebook.com/...">
+<div class="actions"><button class="primary" type="submit">حفظ المسودة على هذا الجهاز</button><button class="secondary" type="reset">تفريغ الحقول</button></div>
+</form>
+</section>
+<section class="panel"><h2>مسوداتي المحفوظة</h2><p class="muted">تظهر هنا المسودات التي حفظتها في هذا المتصفح فقط.</p><div id="drafts"><div class="empty">لا توجد مسودات بعد.</div></div>
+<div class="actions"><button class="secondary" id="export">تنزيل نسخة احتياطية للمسودات</button><button class="secondary" id="copyAll">نسخ عناوين ونصوص المسودات</button><button class="danger" id="clear">حذف المسودات من هذا الجهاز</button></div></section>
+<div class="actions"><a class="linkbtn secondary" href="./">العودة إلى المجلة</a></div>
+</main>
+<script>
+const KEY='anrsh_magazine_editor_drafts_v1';
+const $=id=>document.getElementById(id);
+let drafts=[];try{drafts=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){drafts=[]}
+function save(){localStorage.setItem(KEY,JSON.stringify(drafts));render()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){const root=$('drafts');if(!drafts.length){root.innerHTML='<div class="empty">لا توجد مسودات بعد.</div>';return}root.innerHTML=drafts.map((d,i)=>'<article class="draft"><h3>'+esc(d.title)+'</h3><div class="muted">'+esc(d.section)+' · '+esc(d.langLabel)+' · '+esc(d.date)+'</div>'+(d.photo?'<img src="'+d.photo+'" alt="صورة المقال">':'')+'<p id="body'+i+'">'+esc(d.body.slice(0,450))+(d.body.length>450?'…':'')+'</p>'+(d.source?'<a href="'+esc(d.source)+'" target="_blank" rel="noopener">المصدر الأصلي</a>':'')+'<div class="actions"><button class="secondary" onclick="copyDraft('+i+')">نسخ المقال</button><button class="danger" onclick="deleteDraft('+i+')">حذف المسودة</button></div></article>').join('')}
+window.copyDraft=async i=>{const d=drafts[i];await navigator.clipboard.writeText(d.title+'\n\n'+d.body);alert('تم نسخ نص المقال')};
+window.deleteDraft=i=>{if(confirm('حذف هذه المسودة؟')){drafts.splice(i,1);save()}};
+$('articleForm').addEventListener('submit',async e=>{e.preventDefault();const file=$('photo').files[0];let photo='';if(file){if(!file.type.startsWith('image/')){alert('اختر ملف صورة صالحاً');return}photo=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const scale=Math.min(1,1400/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*scale);c.height=Math.round(im.height*scale);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.82))};im.onerror=reject;im.src=fr.result};fr.onerror=reject;fr.readAsDataURL(file)}).catch(()=>{alert('تعذر قراءة الصورة');return ''});if(!photo)return}
+const lang=$('lang').value;drafts.unshift({title:$('title').value.trim(),section:$('section').value,lang,langLabel:lang==='ar'?'العربية':lang==='fr'?'Français':'English',body:$('body').value.trim(),source:$('source').value.trim(),photo,date:new Date().toLocaleString('ar-DZ')});try{save();e.target.reset();alert('حُفظت المسودة على هذا الجهاز فقط. لم تُنشر بعد.')}catch(err){alert('مساحة التخزين غير كافية. جرّب صورة أصغر أو احذف بعض المسودات.')}});
+$('export').onclick=()=>{const blob=new Blob([JSON.stringify(drafts,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ANRSH-MAGAZINE-drafts.json';a.click();URL.revokeObjectURL(a.href)};
+$('copyAll').onclick=async()=>{if(!drafts.length){alert('لا توجد مسودات');return}await navigator.clipboard.writeText(drafts.map(d=>d.title+'\n'+d.body).join('\n\n----------------\n\n'));alert('تم نسخ المقالات')};
+$('clear').onclick=()=>{if(confirm('هل تريد حذف كل المسودات المحفوظة في هذا الجهاز؟')){drafts=[];save()}};
+render();
+</script></body></html>
