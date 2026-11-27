@@ -1,0 +1,12 @@
+{
+  "name": "ANRSH PRESSE",
+  "short_name": "ANRSH PRESSE",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f2",
+  "theme_color": "#12352d",
+  "lang": "ar",
+  "dir": "rtl",
+  "description": "المجلة الإلكترونية للجمعية الوطنية لمتقاعدي سوناطراك"
+}
