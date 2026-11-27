@@ -4,6 +4,7 @@ const MAX_BODY = 48_000;
 const enc = new TextEncoder();
 
 function json(data, status=200, headers={}) {
+  if (typeof status === "object") { headers = status; status = 200; }
   return new Response(JSON.stringify(data), {status, headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",...headers}});
 }
 function cookie(value, maxAge=SESSION_SECONDS) {
